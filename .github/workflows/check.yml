@@ -1,0 +1,32 @@
+# Every submission is checked at once, at its pinned commit, and the report is posted.
+name: Check a submission
+on:
+  issues:
+    types: [opened, edited]
+permissions:
+  issues: write
+  contents: read
+jobs:
+  check:
+    if: contains(github.event.issue.labels.*.name, 'submission')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tools (qmllint, aequalyn-store)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq qt6-declarative-dev-tools >/dev/null
+          echo "/usr/lib/qt6/bin" >> "$GITHUB_PATH"
+          curl -fsSL https://raw.githubusercontent.com/Aequalyn/aequalyn/main/bin/aequalyn-store -o aequalyn-store
+          sudo install -m 755 aequalyn-store /usr/local/bin/aequalyn-store && rm aequalyn-store
+      - name: Check
+        env:
+          BODY: ${{ github.event.issue.body }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        run: |
+          printf '%s' "$BODY" > body.md
+          python3 tools/check.py body.md > report.md || true
+          cat report.md
+      - name: Report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment ${{ github.event.issue.number }} --repo ${{ github.repository }} --body-file report.md

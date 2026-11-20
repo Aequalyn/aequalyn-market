@@ -1,0 +1,73 @@
+# A reviewer with write access answers a checked submission:
+#   /approve           the checks run once more at the pinned commit; the record goes into
+#                      submissions/, the database is rebuilt and its version goes up
+#   /reject <reason>   the issue closes with the reason
+name: Review a submission
+on:
+  issue_comment:
+    types: [created]
+permissions:
+  issues: write
+  contents: write
+jobs:
+  review:
+    if: >-
+      contains(github.event.issue.labels.*.name, 'submission') &&
+      github.event.issue.state == 'open' &&
+      (startsWith(github.event.comment.body, '/approve') || startsWith(github.event.comment.body, '/reject')) &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject
+        if: startsWith(github.event.comment.body, '/reject')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMENT: ${{ github.event.comment.body }}
+        run: |
+          reason="${COMMENT#/reject}"; reason="${reason# }"
+          gh issue comment ${{ github.event.issue.number }} --repo ${{ github.repository }} --body "Rejected: ${reason:-no reason given}"
+          gh issue close ${{ github.event.issue.number }} --repo ${{ github.repository }} --reason "not planned"
+      - name: Tools (qmllint, aequalyn-store)
+        if: startsWith(github.event.comment.body, '/approve')
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq qt6-declarative-dev-tools >/dev/null
+          echo "/usr/lib/qt6/bin" >> "$GITHUB_PATH"
+          curl -fsSL https://raw.githubusercontent.com/Aequalyn/aequalyn/main/bin/aequalyn-store -o aequalyn-store
+          sudo install -m 755 aequalyn-store /usr/local/bin/aequalyn-store && rm aequalyn-store
+      - name: Approve
+        if: startsWith(github.event.comment.body, '/approve')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BODY: ${{ github.event.issue.body }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REVIEWER: ${{ github.event.comment.user.login }}
+        run: |
+          printf '%s' "$BODY" > body.md
+          # the commit the bot pinned when it first checked the issue
+          pinned=$(gh api repos/${{ github.repository }}/issues/$ISSUE_NUMBER/comments --paginate \
+                   --jq '.[] | select(.user.login == "github-actions[bot]") | .body' \
+                   | sed -n 's/.*aequalyn-market pinned:\([0-9a-f]\{40\}\).*/\1/p' | head -n1)
+          [ -n "$pinned" ] || { gh issue comment $ISSUE_NUMBER --repo ${{ github.repository }} --body "No pinned commit found: edit the issue so the bot checks it first."; exit 1; }
+          if ! python3 tools/check.py body.md --pinned "$pinned" --record record.json > report.md; then
+            gh issue comment $ISSUE_NUMBER --repo ${{ github.repository }} --body-file report.md
+            exit 1
+          fi
+          id=$(python3 -c 'import json;print(json.load(open("record.json"))["id"])')
+          python3 - "$REVIEWER" <<'PY'
+          import json, sys, datetime
+          r = json.load(open("record.json"))
+          r["approved"] = datetime.date.today().isoformat()
+          r["approvedBy"] = sys.argv[1]
+          open(f"submissions/{r['id']}.json", "w").write(json.dumps(r, indent=2) + "\n")
+          PY
+          python3 tools/build_db.py
+          git config user.name "aequalyn-market[bot]"
+          git config user.email "aequalyn-market@users.noreply.github.com"
+          git add submissions db
+          git commit -m "market: approve $id at ${pinned:0:12} (#$ISSUE_NUMBER)"
+          git push
+          gh issue comment $ISSUE_NUMBER --repo ${{ github.repository }} --body "Approved at \`${pinned:0:12}\` by @$REVIEWER: it is in the catalog."
+          gh issue close $ISSUE_NUMBER --repo ${{ github.repository }} --reason completed

@@ -1,0 +1,50 @@
+name: Publish an app from source
+description: Submit an app from source to the Aequalyn Market. Read docs/guidelines/app.md first.
+title: "[app] "
+labels: ["submission", "app"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read **[the app guidelines](../blob/main/docs/guidelines/app.md)** first: the bot checks exactly what they ask,
+        at the commit below, and posts its report here. A reviewer then approves or rejects it.
+  - type: input
+    id: repo
+    attributes:
+      label: Repository
+      description: The https git URL of your repo.
+      placeholder: https://github.com/you/aequalyn-app-name
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Commit
+      description: The full commit id to review. Leave it empty and the bot pins the current head.
+  - type: input
+    id: name
+    attributes:
+      label: Name
+    validations:
+      required: true
+  - type: input
+    id: about
+    attributes:
+      label: About
+      description: One line about it.
+    validations:
+      required: true
+  - type: input
+    id: license
+    attributes:
+      label: License
+      placeholder: MIT
+    validations:
+      required: true
+  - type: checkboxes
+    id: read
+    attributes:
+      label: Guidelines
+      options:
+        - label: I read docs/guidelines/app.md and `aequalyn-store check app . --market` passes.
+          required: true
