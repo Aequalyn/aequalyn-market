@@ -22,7 +22,7 @@ was checked.
 .github/ISSUE_TEMPLATE/   the Publish forms, one per kind
 .github/workflows/        check.yml (the report on every submission), review.yml (/approve, /reject)
 docs/guidelines/          what each kind must carry, how it is checked, what it must not do
-submissions/<id>.json     one record per approved submission
+submissions/<kind>-<id>.json   one record per approved submission
 db/market.json            the catalog, built from submissions/ by tools/build_db.py
 db/market.json.sha256     its checksum, verified by every Store before reading it
 tools/check.py            the checks, as the bot and reviewers run them

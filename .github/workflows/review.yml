@@ -57,11 +57,13 @@ jobs:
           fi
           id=$(python3 -c 'import json;print(json.load(open("record.json"))["id"])')
           python3 - "$REVIEWER" <<'PY'
-          import json, sys, datetime
+          import json, sys, datetime, pathlib
           r = json.load(open("record.json"))
           r["approved"] = datetime.date.today().isoformat()
           r["approvedBy"] = sys.argv[1]
-          open(f"submissions/{r['id']}.json", "w").write(json.dumps(r, indent=2) + "\n")
+          # by kind too: a theme and a look may share a name
+          pathlib.Path("submissions").mkdir(exist_ok=True)
+          pathlib.Path(f"submissions/{r['kind']}-{r['id']}.json").write_text(json.dumps(r, indent=2) + "\n")
           PY
           python3 tools/build_db.py
           git config user.name "aequalyn-market[bot]"

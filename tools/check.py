@@ -60,6 +60,7 @@ def main():
     commit = pinned or field(body, "Commit")
     lines = []
     ok = True
+    ident = ""
     if kind not in KINDS:
         ok, lines = False, [f"Unknown kind `{kind}`."]
     elif not re.match(r"^https://[\w.-]+/[\w./-]+$", repo):
@@ -77,6 +78,9 @@ def main():
             r = run(["aequalyn-store", "check", kind, repo, "--at", commit, "--market"])
             ok = r.returncode == 0
             lines = (r.stdout + r.stderr).strip().splitlines()
+            # the id the Store installs it under: the catalog must carry the same one
+            m = re.search(r"^OK  " + kind + r" '([^']+)' passes", r.stdout, re.M)
+            ident = m.group(1) if m else ""
     print(f"<!-- aequalyn-market pinned:{commit} -->")
     print(("### ✅ Passes every check" if ok else "### ❌ Does not pass") + f" at `{commit[:12] or '—'}`\n")
     print("```\n" + "\n".join(lines) + "\n```")
@@ -84,7 +88,7 @@ def main():
         print("\nA reviewer can now `/approve` it, or `/reject <reason>`.")
     if record and ok:
         name = field(body, "Name")
-        ident = re.sub(r"[^a-z0-9-]", "-", (name or Path(repo).name).lower()).strip("-")
+        ident = ident or re.sub(r"[^a-z0-9-]", "-", (name or Path(repo).name).lower()).strip("-")
         Path(record).write_text(json.dumps({
             "id": ident, "kind": kind, "name": name, "about": field(body, "About"),
             "license": field(body, "License"), "repo": repo, "commit": commit,
