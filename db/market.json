@@ -1,6 +1,6 @@
 {
-  "version": 4,
-  "updated": "2026-11-24T22:45:00Z",
+  "version": 5,
+  "updated": "2026-11-24T22:47:37Z",
   "items": [
     {
       "id": "nudu",
@@ -27,6 +27,20 @@
       "preview": "https://raw.githubusercontent.com/qempexe/aequalyn-theme-lichen/74c1926888867fe696ed03a4e39474f2c6e94cd2/backgrounds/01-lichen.png",
       "by": "qempexe",
       "issue": 2,
+      "approved": "2026-11-24",
+      "approvedBy": "qempexe"
+    },
+    {
+      "id": "lichen",
+      "kind": "wallpaper",
+      "name": "Lichen wallpapers",
+      "about": "Two drawn wallpapers at 2560 x 1440.",
+      "license": "CC-BY-4.0",
+      "repo": "https://github.com/qempexe/aequalyn-wallpapers-lichen",
+      "commit": "295e297efc920abf5adfb32e449b944619772a31",
+      "preview": "https://raw.githubusercontent.com/qempexe/aequalyn-wallpapers-lichen/295e297efc920abf5adfb32e449b944619772a31/01-lichen-dusk.png",
+      "by": "qempexe",
+      "issue": 4,
       "approved": "2026-11-24",
       "approvedBy": "qempexe"
     }
