@@ -1,5 +1,19 @@
 {
-  "version": 1,
-  "updated": "2026-11-20T19:02:50Z",
-  "items": []
+  "version": 2,
+  "updated": "2026-11-24T22:19:21Z",
+  "items": [
+    {
+      "id": "lichen",
+      "kind": "theme",
+      "name": "Lichen",
+      "about": "A dark, grey green theme with one drawn background.",
+      "license": "MIT",
+      "repo": "https://github.com/qempexe/aequalyn-theme-lichen",
+      "commit": "74c1926888867fe696ed03a4e39474f2c6e94cd2",
+      "by": "qempexe",
+      "issue": 2,
+      "approved": "2026-11-24",
+      "approvedBy": "qempexe"
+    }
+  ]
 }
