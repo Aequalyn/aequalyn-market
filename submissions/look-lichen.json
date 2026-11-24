@@ -1,0 +1,14 @@
+{
+  "id": "lichen",
+  "kind": "look",
+  "name": "Lichen look",
+  "about": "A glass bar in islands, docks to match, and calm lock timings.",
+  "license": "MIT",
+  "repo": "https://github.com/qempexe/aequalyn-look-lichen",
+  "commit": "472826b4ad68d7aa3206f94ec2af69599e30c28a",
+  "preview": "https://raw.githubusercontent.com/qempexe/aequalyn-look-lichen/472826b4ad68d7aa3206f94ec2af69599e30c28a/preview.png",
+  "by": "qempexe",
+  "issue": 5,
+  "approved": "2026-11-24",
+  "approvedBy": "qempexe"
+}
