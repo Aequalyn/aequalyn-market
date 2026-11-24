@@ -82,6 +82,33 @@ def security(kind, repo, commit):
         return why
 
 
+def preview(kind, repo, commit):
+    """the picture the Store and the site show: a file of the submission, at its commit"""
+    m = re.match(r"^https://github\.com/([\w.-]+/[\w.-]+?)(?:\.git)?/?$", repo)
+    if not m:
+        return ""
+    with tempfile.TemporaryDirectory() as tmp:
+        for c in (["git", "init", "-q"], ["git", "remote", "add", "origin", repo],
+                  ["git", "fetch", "-q", "--depth", "1", "origin", commit], ["git", "checkout", "-q", "FETCH_HEAD"]):
+            if run(c, cwd=tmp).returncode:
+                return ""
+        root = Path(tmp)
+        names = ["preview.png", "preview.jpg", "preview.webp", "icon.png"]
+        if kind == "theme" and (root / "backgrounds").is_dir():
+            names += sorted("backgrounds/" + p.name for p in (root / "backgrounds").iterdir())
+        if kind == "wallpaper":
+            try:
+                names += [str(w["file"]) for w in json.loads((root / "index.json").read_text())]
+            except Exception:
+                pass
+        for n in names:
+            p = root / n
+            if (p.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp") and re.match(r"^[\w./ -]+$", n) and ".." not in n
+                    and p.is_file() and not p.is_symlink() and p.stat().st_size <= 8 << 20):
+                return f"https://raw.githubusercontent.com/{m.group(1)}/{commit}/" + n.replace(" ", "%20")
+    return ""
+
+
 def main():
     args = sys.argv[1:]
     body = Path(args[0]).read_text()
@@ -134,7 +161,7 @@ def main():
         ident = ident or re.sub(r"[^a-z0-9-]", "-", (name or Path(repo).name).lower()).strip("-")
         Path(record).write_text(json.dumps({
             "id": ident, "kind": kind, "name": name, "about": field(body, "About"),
-            "license": field(body, "License"), "repo": repo, "commit": commit,
+            "license": field(body, "License"), "repo": repo, "commit": commit, "preview": preview(kind, repo, commit),
             "by": os.environ.get("ISSUE_AUTHOR", ""), "issue": int(os.environ.get("ISSUE_NUMBER", "0") or 0),
         }, indent=2) + "\n")
     return 0 if ok else 1

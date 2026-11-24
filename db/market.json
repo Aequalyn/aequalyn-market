@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "updated": "2026-11-24T22:19:21Z",
+  "version": 3,
+  "updated": "2026-11-24T22:25:17Z",
   "items": [
     {
       "id": "lichen",
@@ -10,6 +10,7 @@
       "license": "MIT",
       "repo": "https://github.com/qempexe/aequalyn-theme-lichen",
       "commit": "74c1926888867fe696ed03a4e39474f2c6e94cd2",
+      "preview": "https://raw.githubusercontent.com/qempexe/aequalyn-theme-lichen/74c1926888867fe696ed03a4e39474f2c6e94cd2/backgrounds/01-lichen.png",
       "by": "qempexe",
       "issue": 2,
       "approved": "2026-11-24",
