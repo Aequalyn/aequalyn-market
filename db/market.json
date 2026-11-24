@@ -1,6 +1,6 @@
 {
-  "version": 7,
-  "updated": "2026-11-24T22:52:45Z",
+  "version": 8,
+  "updated": "2026-11-24T22:55:42Z",
   "items": [
     {
       "id": "nudu",
@@ -41,6 +41,20 @@
       "preview": "https://raw.githubusercontent.com/qempexe/aequalyn-look-lichen/472826b4ad68d7aa3206f94ec2af69599e30c28a/preview.png",
       "by": "qempexe",
       "issue": 5,
+      "approved": "2026-11-24",
+      "approvedBy": "qempexe"
+    },
+    {
+      "id": "dev-stats",
+      "kind": "plugin",
+      "name": "Dev stats",
+      "about": "Your GitHub and GitLab contributions: the year's grid, the totals and the streaks.",
+      "license": "MIT",
+      "repo": "https://github.com/qempexe/aequalyn-plugin-dev-stats",
+      "commit": "9e6586789c21282b4ef7d937580b801c0e1222f0",
+      "preview": "https://raw.githubusercontent.com/qempexe/aequalyn-plugin-dev-stats/9e6586789c21282b4ef7d937580b801c0e1222f0/preview.png",
+      "by": "qempexe",
+      "issue": 1,
       "approved": "2026-11-24",
       "approvedBy": "qempexe"
     },
