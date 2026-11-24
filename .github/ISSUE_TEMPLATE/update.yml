@@ -1,0 +1,59 @@
+name: Update an item
+description: Submit a new version of something of yours that is in the Market.
+title: "[update] "
+labels: ["submission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For an item that is in the catalog already. Push the new version to your repo first: the bot checks it at the commit
+        below, exactly as it checked the first one, and shows a reviewer what changed. Until it is approved, every Store keeps
+        the reviewed version; then it offers yours as an update.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options: [plugin, theme, cursor, wallpaper, look, app]
+    validations:
+      required: true
+  - type: input
+    id: repo
+    attributes:
+      label: Repository
+      description: The same repo it was published from.
+      placeholder: https://github.com/you/aequalyn-plugin-name
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Commit
+      description: The full commit id to review. Leave it empty and the bot pins the current head.
+  - type: textarea
+    id: changes
+    attributes:
+      label: What changed
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: Name
+      description: Only to change it.
+  - type: input
+    id: about
+    attributes:
+      label: About
+      description: Only to change it.
+  - type: input
+    id: license
+    attributes:
+      label: License
+      description: Only to change it.
+  - type: checkboxes
+    id: read
+    attributes:
+      label: Guidelines
+      options:
+        - label: I read the guidelines for its kind and `aequalyn-store check <kind> . --market` passes.
+          required: true

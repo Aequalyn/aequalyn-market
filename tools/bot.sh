@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# bot.sh -- what the workflows run on a Publish issue. Needs gh (GH_TOKEN), REPO and python3.
+# bot.sh -- what the workflows run on a Publish or an Update issue. Needs gh (GH_TOKEN), REPO and python3.
 #
 #   bot.sh check <issue>                    check it, post the report, set its labels
 #   bot.sh review <issue> <label> <actor>   a reviewer set `approved` or `rejected`
 #
-# Labels: needs-review and changes-requested are the bot's; security-review is set by the
+# Labels: needs-review, changes-requested and update (it updates an item of the catalog) are
+# the bot's; security-review is set by the
 # bot (or a reviewer) and holds an approval back until a reviewer takes it off; approved
 # and rejected are a reviewer's. Only someone who can write to this repository is one: a
 # label can also be set by people who cannot.
@@ -40,9 +41,10 @@ do_check() {
     unlabel approved rejected needs-review changes-requested
     read_issue
     local ok=0
-    python3 "$tools/check.py" "$work/body.md" --hash "$hash" --flags "$work/flags" > "$work/report.md" && ok=1
+    python3 "$tools/check.py" "$work/body.md" --hash "$hash" --flags "$work/flags" --update "$work/update" > "$work/report.md" && ok=1
     cat "$work/report.md"
     gh issue comment "$issue" --repo "$REPO" --body-file "$work/report.md" >/dev/null
+    if [[ -s "$work/update" ]]; then label update; else unlabel update; fi
     if [[ $ok -eq 1 ]]; then
         if [[ -s "$work/flags" ]]; then label security-review; fi
         label needs-review
@@ -87,20 +89,29 @@ do_review() {
         do_check
         return 0
     fi
-    if ! python3 "$tools/check.py" "$work/body.md" --pinned "$pinned" --hash "$hash" --record "$work/record.json" > "$work/report.md"; then
+    if ! python3 "$tools/check.py" "$work/body.md" --pinned "$pinned" --hash "$hash" --record "$work/record.json" --update "$work/update" > "$work/report.md"; then
         unlabel approved needs-review
         label changes-requested
         gh issue comment "$issue" --repo "$REPO" --body-file "$work/report.md" >/dev/null
         return 0
     fi
     # several approvals may run at once: each starts from the newest catalog
-    local i name done=0
+    local i name said done=0
+    said="it is in the catalog"
+    if [[ -s "$work/update" ]]; then said="the update is in the catalog, and every Store offers it"; fi
     for i in 1 2 3 4 5 6 7 8; do
         git fetch -q origin main
         git reset -q --hard origin/main
-        name=$(python3 - "$work/record.json" "$actor" <<'PY'
+        name=$(python3 - "$work/record.json" "$actor" "$ISSUE_AUTHOR" <<'PY'
 import json, sys, datetime, pathlib
+sys.dont_write_bytecode = True
+sys.path.insert(0, "tools")
+import check
 r = json.load(open(sys.argv[1]))
+# the catalog may have changed since the check: its id may be someone else's by now
+if check.in_catalog(r["kind"], r["id"], r["repo"], sys.argv[3], check.records("submissions"))[1]:
+    print("taken")
+    sys.exit()
 r["approved"] = datetime.date.today().isoformat()
 r["approvedBy"] = sys.argv[2]
 pathlib.Path("submissions").mkdir(exist_ok=True)
@@ -109,6 +120,12 @@ pathlib.Path(f"submissions/{r['kind']}-{r['id']}.json").write_text(json.dumps(r,
 print(r["kind"], r["id"])
 PY
 )
+        if [[ "$name" == taken ]]; then
+            unlabel approved
+            say "Its id was taken meanwhile: it is checked again now."
+            do_check
+            return 0
+        fi
         python3 tools/build_db.py
         git add submissions db
         if git diff --cached --quiet; then done=1; break; fi
@@ -122,7 +139,7 @@ PY
         return 1
     fi
     unlabel needs-review
-    say "Approved at \`${pinned:0:12}\` by @$actor: it is in the catalog."
+    say "Approved at \`${pinned:0:12}\` by @$actor: $said."
     gh issue close "$issue" --repo "$REPO" --reason completed >/dev/null
 }
 
