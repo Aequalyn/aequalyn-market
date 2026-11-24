@@ -86,6 +86,12 @@ aequalyn-plugin-<id>/
 - `group` is one of `screen` (always on the desktop), `key` (called up by a key) or
   `background` (works out of sight) — the same groups the control center's Plugins
   page shows.
+- `widget` (optional) names a `.qml` file beside `plugin.json`: your place on the bar. It
+  declares `required property var bar` and `property color ink`, takes its colours from
+  `bar.theme`, and works on a side bar (`bar.vertical`). Installing puts it on the right of
+  the bar once; the user moves it or takes it off. A panel of its own opens under it with
+  `bar.toggleWidgetPopup("<id>", screen)`. A `background` plugin has none: it runs in its
+  sandbox.
 - `icon` is a Nerd Font codepoint, as the shell's own `PluginInfo.js` uses.
 
 **`Preview.qml`** is the contract the Store relies on: an `Item` about 360×220 that
