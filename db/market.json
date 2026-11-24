@@ -1,6 +1,6 @@
 {
-  "version": 6,
-  "updated": "2026-11-24T22:52:40Z",
+  "version": 7,
+  "updated": "2026-11-24T22:52:45Z",
   "items": [
     {
       "id": "nudu",
@@ -13,6 +13,20 @@
       "preview": "https://raw.githubusercontent.com/qempexe/aequalyn-app-nudu/1bd2afabb3fa73440123f1c5559083d0cffd0f4b/icon.png",
       "by": "qempexe",
       "issue": 6,
+      "approved": "2026-11-24",
+      "approvedBy": "qempexe"
+    },
+    {
+      "id": "facet",
+      "kind": "cursor",
+      "name": "Facet",
+      "about": "A dark cursor with a light edge, at 16, 24, 32 and 48.",
+      "license": "CC-BY-4.0",
+      "repo": "https://github.com/qempexe/aequalyn-cursor-facet",
+      "commit": "57e5ddf99822e14c2f2bd40f0887a632ca17b672",
+      "preview": "https://raw.githubusercontent.com/qempexe/aequalyn-cursor-facet/57e5ddf99822e14c2f2bd40f0887a632ca17b672/icon.png",
+      "by": "qempexe",
+      "issue": 3,
       "approved": "2026-11-24",
       "approvedBy": "qempexe"
     },
