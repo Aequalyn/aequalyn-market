@@ -1,6 +1,6 @@
 {
-  "version": 9,
-  "updated": "2026-11-24T23:24:22Z",
+  "version": 10,
+  "updated": "2026-11-25T13:55:35Z",
   "items": [
     {
       "id": "nudu",
@@ -70,6 +70,20 @@
       "by": "qempexe",
       "issue": 2,
       "approved": "2026-11-24",
+      "approvedBy": "qempexe"
+    },
+    {
+      "id": "spectral",
+      "kind": "theme",
+      "name": "Spectral",
+      "about": "The full neon spectrum on near-black, with six 4K wallpapers and two live loops.",
+      "license": "MIT",
+      "repo": "https://github.com/qempexe/aequalyn-theme-spectral",
+      "commit": "3b67e2005c228be8bd52fd80d57828e37fe79ca9",
+      "preview": "https://raw.githubusercontent.com/qempexe/aequalyn-theme-spectral/3b67e2005c228be8bd52fd80d57828e37fe79ca9/preview.png",
+      "by": "qempexe",
+      "issue": 8,
+      "approved": "2026-11-25",
       "approvedBy": "qempexe"
     },
     {
