@@ -10,8 +10,8 @@ Each piece already has a home in the shell, and a look only fills it:
 
 | Piece | Where it lives | How the Store wears it |
 | --- | --- | --- |
-| `bar` | `barStyle` in `~/.config/aequalyn/settings.json` | merged into `barStyle`; the bar redraws at once |
-| `dock` | the docks' style in `~/.config/aequalyn/docks.json` | `qs ipc call dock importLook <json>`: every dock wears it and stops following the bar |
+| `bar` | `barStyle` in `~/.config/aequalyn/settings.json` | put on a plain bar, with the user's own colours kept; the bar redraws at once |
+| `dock` | the docks' style in `~/.config/aequalyn/docks.json` | `qs ipc call dock importLook <json>`: put on a plain dock: every dock wears it and stops following the bar |
 | `cursor` | Plume's look (`~/.local/state/aequalyn-plume/`) | `qs ipc call plume importLook <json>` |
 | `lock` | a design in `~/.config/hypr/lockscreens/` | copied as `look-<id>.conf`, chosen as the lock style, rendered by `aequalyn-lockscreen` in the user's own colours |
 | `sleep` | `power` in `settings.json` | the timings merged in, then `aequalyn-idle` rewrites hypridle |
@@ -37,8 +37,8 @@ aequalyn-look-<id>/
   "version": "1.0.0",
   "repo": "https://github.com/you/aequalyn-look-harbour-night",
   "pieces": {
-    "bar":    { "shape": "islands", "ends": "capsule", "radius": 10, "surface": "glass" },
-    "dock":   { "ends": "capsule", "surface": "glass", "opacity": 85 },
+    "bar":    { "shape": "islands", "ends": "capsule", "radius": 10, "surface": "frost", "fill": "glass" },
+    "dock":   { "ends": "capsule", "surface": "frost", "fill": "glass", "opacity": 85 },
     "cursor": { "shape": "arrow", "size": 28 },
     "lock":   "lock.conf",
     "sleep":  { "lockMinutes": 10, "screenOffMinutes": 12, "suspendMinutes": 30 },
