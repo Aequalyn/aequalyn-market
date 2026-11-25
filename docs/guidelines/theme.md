@@ -96,7 +96,7 @@ order — number them if the order matters (`01-dawn.jpg`, `02-noon.jpg`, …).
 The Store's pipeline at your pinned commit: the folder is checked
 (`jq` for the JSON, or the toml parse; the media formats), copied by
 `aequalyn-themes install` into `~/.config/aequalyn/themes/<id>/`, and
-`qs ipc call theme reload` makes the running shell see it — Atelier, the Theme page,
+`qs ipc call theme reload` makes the running shell see it — the picker, the Theme page,
 and the Store list it at once. Applying is `qs ipc call theme set <id>`; taking it
 back off is the Theme page or `aequalyn-themes remove <id>`, which clears the active
 link first so the desktop never points at a folder that is gone.
