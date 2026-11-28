@@ -16,6 +16,26 @@ was checked.
 4. A reviewer answers with a label (below): `approved` runs the checks once more at the
    pinned commit and puts it in the catalog, `rejected` closes the issue.
 
+## Names and ids
+
+An item's id is the name the Store installs it under, so no two may be mistaken for each
+other. A new item's id:
+
+- is lowercase letters and digits with single dashes between them, up to 40 characters:
+  `dev-stats`, not `Dev_Stats`;
+- is in its repository's name: `aequalyn-<kind>-<id>`, and `aequalyn-wallpapers-<id>` for a
+  wallpaper pack (`aequalyn-theme-lichen`, `aequalyn-plugin-dev-stats`). As with Omarchy's
+  themes, the repository names the item: GitHub gives a name out once per owner, and it
+  shows in every link;
+- is not one of Aequalyn's own (`tools/reserved.json`: the shell's plugins, the built-in
+  themes, wallpapers, cursor and looks, refreshed from their repositories before every
+  check), nor `aequalyn`, `official`, `builtin`, `default`, `system` or `core`;
+- does not read the same as another repository's id of the same kind: `dev-stats`,
+  `devstats` and `dev.stats` are one name.
+
+Two kinds may share a name (`theme:lichen` and `look:lichen`). Once in the catalog, an id
+never changes.
+
 ## Update
 
 A Store installs and updates only to the commit that was reviewed: what you push after it
@@ -54,6 +74,7 @@ submissions/<kind>-<id>.json   one record per approved submission
 db/market.json            the catalog, built from submissions/ by tools/build_db.py
 db/market.json.sha256     its checksum, verified by every Store before reading it
 tools/check.py            the checks, as the bot and reviewers run them
+tools/reserved.py         reserved.json: Aequalyn's own ids, which no community item may take
 tools/bot.sh              what the workflows do with an issue: checks, labels, approvals
 ```
 

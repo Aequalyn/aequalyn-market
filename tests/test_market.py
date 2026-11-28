@@ -107,8 +107,8 @@ with tempfile.TemporaryDirectory() as tmp:
         text = git(tmp / "market.git", "show", "main:db/market.json")
         return {f"{i['kind']}:{i['id']}": i for i in json.loads(text)["items"]}
 
-    d, c1 = repo("ann/one", "one")
-    url = "https://github.com/ann/one"
+    d, c1 = repo("ann/aequalyn-plugin-one", "one")
+    url = "https://github.com/ann/aequalyn-plugin-one"
     labels, state, said = issue("[plugin] One", "ann", form(Repository=url, Commit="", Name="One", About="First", License="MIT"))
     ok("needs-review" in labels and "update" not in labels, f"a new item: {labels} {said}")
     ok(state == "closed" and catalog()["plugin:one"]["commit"] == c1, f"approved: {said}")
@@ -132,12 +132,13 @@ with tempfile.TemporaryDirectory() as tmp:
     ok("changes-requested" in labels and "can update it" in said and state == "open", f"someone else: {labels}")
     ok("update" not in labels, "a refused update is no update")
 
-    repo("mallory/one", "one")
-    labels, state, said = issue("[plugin] One", "mallory", form(Repository="https://github.com/mallory/one", Commit="", Name="One", About="Mine", License="MIT"))
+    repo("mallory/aequalyn-plugin-one", "one")
+    labels, state, said = issue("[plugin] One", "mallory", form(Repository="https://github.com/mallory/aequalyn-plugin-one", Commit="", Name="One", About="Mine", License="MIT"))
     ok("changes-requested" in labels and "belongs to" in said and state == "open", f"its id from another repo: {labels}")
-    labels, state, said = issue("[update] One", "mallory", form(Kind="plugin", Repository="https://github.com/mallory/one", Commit="", **{"What changed": "x"}))
+    labels, state, said = issue("[update] One", "mallory", form(Kind="plugin", Repository="https://github.com/mallory/aequalyn-plugin-one", Commit="", **{"What changed": "x"}))
     ok("belongs to" in said and catalog()["plugin:one"]["commit"] == c2, "nor as an update")
-    labels, state, said = issue("[theme] One", "mallory", form(Repository="https://github.com/mallory/one", Commit="", Name="One", About="x", License="MIT"))
+    repo("mallory/aequalyn-theme-one", "one")
+    labels, state, said = issue("[theme] One", "mallory", form(Repository="https://github.com/mallory/aequalyn-theme-one", Commit="", Name="One", About="x", License="MIT"))
     ok(state == "closed" and "theme:one" in catalog(), f"another kind may share the name: {said}")
 
     # a fork's commit, served through the original
@@ -165,24 +166,43 @@ with tempfile.TemporaryDirectory() as tmp:
     labels, state, said = issue("[update] One", "ann", form(Kind="plugin", Repository=url, Commit="", **{"What changed": "x"}))
     ok("security-review" in labels and "rewritten" in said and catalog()["plugin:one"]["commit"] == c5, f"rewritten history: {labels} {said}")
 
-    repo("ann/new", "new")
-    labels, state, said = issue("[update] New", "ann", form(Kind="plugin", Repository="https://github.com/ann/new", Commit="", **{"What changed": "x"}))
+    repo("ann/aequalyn-plugin-new", "new")
+    labels, state, said = issue("[update] New", "ann", form(Kind="plugin", Repository="https://github.com/ann/aequalyn-plugin-new", Commit="", **{"What changed": "x"}))
     ok("changes-requested" in labels and "Publish form" in said, f"an update of nothing: {labels}")
-    labels, state, said = issue("[update] New", "ann", form(Kind="nope", Repository="https://github.com/ann/new", Commit=""))
+    labels, state, said = issue("[update] New", "ann", form(Kind="nope", Repository="https://github.com/ann/aequalyn-plugin-new", Commit=""))
     ok("changes-requested" in labels and "Unknown kind" in said, "an unknown kind")
     labels, state, said = issue("[plugin] Bad", "ann", "nothing at all")
     ok("changes-requested" in labels, "an empty issue")
 
     # an app: its id is made from its name once, and stays when the name changes
-    a, _ = repo("ann/app", "x")
+    a, _ = repo("ann/aequalyn-app-my-app", "x")
     (a / "README.md").write_text("x"); (a / "icon.png").write_text("x"); (a / "PKGBUILD").write_text("pkgname=x\npkgver=1\npkgrel=1\narch=(any)\n")
     push(a, "app")
-    body = dict(Repository="https://github.com/ann/app", Commit="", Name="My App", About="x", License="MIT")
+    body = dict(Repository="https://github.com/ann/aequalyn-app-my-app", Commit="", Name="My App", About="x", License="MIT")
     labels, state, said = issue("[app] My App", "ann", form(**body))
     ok("app:my-app" in catalog(), f"an app: {said}")
     c = push(a, "app two")
     labels, state, said = issue("[update] App", "ann", form(Kind="app", Repository=body["Repository"], Commit="", **{"What changed": "x"}, Name="Other name"))
     ok(catalog().get("app:my-app", {}).get("commit") == c and catalog()["app:my-app"]["name"] == "Other name" and "app:other-name" not in catalog(), f"its update: {said}")
+
+    # a new id is strict: no two can be mistaken for each other, nor for Aequalyn's own
+    for who, name, ident, why in (
+            ("bob", "bob/aequalyn-plugin-o-ne", "o-ne", "reads the same as"),
+            ("bob", "bob/aequalyn-plugin-bar", "bar", "Aequalyn's own"),
+            ("bob", "bob/aequalyn-plugin-battery-guard", "battery-guard", "Aequalyn's own"),
+            ("bob", "bob/aequalyn-plugin-aequalyn", "aequalyn", "Aequalyn's own"),
+            ("bob", "bob/aequalyn-plugin-two-_x", "two-_x", "cannot be an id"),
+            ("bob", "bob/aequalyn-plugin-Up", "Up", "could not be read"),
+            ("bob", "bob/my-plugin", "mine", "Name the repository `aequalyn-plugin-mine`")):
+        repo(name, ident)
+        labels, state, said = issue("[plugin] X", who, form(Repository=f"https://github.com/{name}", Commit="", Name="X", About="x", License="MIT"))
+        ok("changes-requested" in labels and why in said and state == "open", f"{ident} from {name}: {labels} {said[-200:]}")
+    repo("bob/aequalyn-theme-amber", "amber")
+    labels, state, said = issue("[theme] Amber", "bob", form(Repository="https://github.com/bob/aequalyn-theme-amber", Commit="", Name="Amber", About="x", License="MIT"))
+    ok("changes-requested" in labels and "Aequalyn's own" in said, f"a built-in theme's name: {labels}")
+    repo("bob/aequalyn-wallpapers-dusk", "dusk")
+    labels, state, said = issue("[wallpaper] Dusk", "bob", form(Repository="https://github.com/bob/aequalyn-wallpapers-dusk", Commit="", Name="Dusk", About="x", License="MIT"))
+    ok(state == "closed" and "wallpaper:dusk" in catalog(), f"a wallpaper pack's repository: {said[-200:]}")
 
 print(f"market: {fails} failures")
 sys.exit(1 if fails else 0)

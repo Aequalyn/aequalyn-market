@@ -10,6 +10,12 @@ catalog now, when the issue updates an item. Exit 0 = pass.
 
 An item belongs to the repository it came from, and to who submitted it or owns that
 repository: nobody else's issue can take its id or update it.
+
+A new item's id is strict, so no two can be mistaken for each other: lowercase letters and
+digits with single dashes, up to 40; not one of Aequalyn's own (tools/reserved.json); not
+another repository's id give or take a dash, dot or underscore; and its repository is named
+after it, aequalyn-<kind>-<id> (aequalyn-wallpapers-<id> for a wallpaper pack), as Omarchy
+names a theme by its repository: a name GitHub gives out once per owner, shown in the URL.
 """
 import json, re, subprocess, sys, tempfile, os
 from pathlib import Path
@@ -29,6 +35,43 @@ def run(cmd, **kw):
 
 
 SUBMISSIONS = Path(__file__).resolve().parent.parent / "submissions"
+RESERVED = Path(__file__).resolve().parent / "reserved.json"
+ID_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+# words no community item may be called, of any kind: they would read as Aequalyn's own
+RESERVED_WORDS = {"aequalyn", "official", "builtin", "built-in", "default", "system", "core"}
+# the word for each kind in a repository's name
+KIND_WORDS = {"plugin": ("plugin",), "theme": ("theme",), "cursor": ("cursor",),
+              "wallpaper": ("wallpapers", "wallpaper"), "look": ("look",), "app": ("app",)}
+
+
+def fold(ident):
+    """an id as it reads: dashes, dots, underscores and case do not make it another one"""
+    return re.sub(r"[-_.]", "", ident.lower())
+
+
+def repo_name(repo):
+    return re.sub(r"(\.git)?/*$", "", repo.strip()).rsplit("/", 1)[-1].lower()
+
+
+def new_id(kind, ident, repo, known):
+    """why a new item may not have this id, or "" """
+    if len(ident) > 40 or not ID_RE.fullmatch(ident):
+        return (f"`{ident}` cannot be an id: lowercase letters and digits, with single dashes "
+                "between them, up to 40 characters.")
+    try:
+        reserved = json.loads(RESERVED.read_text()).get(kind, [])
+    except (OSError, ValueError):
+        reserved = []
+    if ident in RESERVED_WORDS or fold(ident) in {fold(r) for r in reserved}:
+        return f"`{ident}` is the name of one of Aequalyn's own: pick another one."
+    for r in known:
+        if r["kind"] == kind and r["id"] != ident and fold(r["id"]) == fold(ident) and not same_repo(r["repo"], repo):
+            return f"`{ident}` reads the same as `{kind}:{r['id']}` from {r['repo']}: pick another one."
+    want = [f"aequalyn-{w}-{ident}" for w in KIND_WORDS[kind]]
+    if repo_name(repo) not in want:
+        return (f"Name the repository `{want[0]}`: a new {kind}'s repository carries its id, so two "
+                f"cannot share one (this one is `{repo_name(repo)}`).")
+    return ""
 
 
 def same_repo(a, b):
@@ -224,8 +267,12 @@ def main():
             if kind == "app":
                 # an app has no manifest: its name makes its id, once
                 here = next((r for r in known if r["kind"] == "app" and same_repo(r["repo"], repo)), None)
-                ident = here["id"] if here else re.sub(r"[^a-z0-9-]", "-", (field(body, "Name") or Path(repo).name).lower()).strip("-")
+                # a new one: from its repository's name (aequalyn-app-<id>), else its name
+                m = re.fullmatch(r"aequalyn-app-([a-z0-9-]+)", repo_name(repo))
+                ident = here["id"] if here else m.group(1) if m else re.sub(r"[^a-z0-9-]", "-", (field(body, "Name") or Path(repo).name).lower()).strip("-")
             old, why_not = in_catalog(kind, ident, repo, author, known)
+            if not why_not and old is None and not updating:
+                why_not = new_id(kind, ident, repo, known)
             if not why_not and updating and old is None:
                 why_not = "It is not in the catalog yet: use the Publish form for its kind."
             if not why_not:

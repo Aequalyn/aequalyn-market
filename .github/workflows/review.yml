@@ -24,6 +24,9 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq qt6-declarative-dev-tools >/dev/null
           curl -fsSL https://raw.githubusercontent.com/Aequalyn/aequalyn/main/bin/aequalyn-store -o aequalyn-store
           sudo install -m 755 aequalyn-store /usr/local/bin/aequalyn-store && rm aequalyn-store
+      - name: Aequalyn's own ids (a community item may not take one)
+        run: |
+          python3 tools/reserved.py || echo "GitHub could not be read, so the reserved ids in git are used"
       - name: Review
         env:
           GH_TOKEN: ${{ github.token }}

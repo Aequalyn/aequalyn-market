@@ -82,7 +82,8 @@ aequalyn-plugin-<id>/
 ```
 
 - `id` is short, lowercase, and never changes: it names the IPC target, the settings
-  folder and the catalog entry.
+  folder and the catalog entry. It is in your repository's name, `aequalyn-plugin-<id>`,
+  and is none of the shell's own plugins: see "Names and ids" in the README.
 - `group` is one of `screen` (always on the desktop), `key` (called up by a key) or
   `background` (works out of sight) — the same groups the control center's Plugins
   page shows.

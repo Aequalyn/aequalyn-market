@@ -12,7 +12,7 @@ body:
     id: repo
     attributes:
       label: Repository
-      description: The https git URL of your repo.
+      description: "The https git URL of your repo, named aequalyn-wallpapers-<id> after its id (see Names and ids in the README)."
       placeholder: https://github.com/you/aequalyn-wallpaper-name
     validations:
       required: true
