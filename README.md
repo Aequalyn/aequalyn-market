@@ -24,9 +24,8 @@ other. A new item's id:
 - is lowercase letters and digits with single dashes between them, up to 40 characters:
   `dev-stats`, not `Dev_Stats`;
 - is in its repository's name: `aequalyn-<kind>-<id>`, and `aequalyn-wallpapers-<id>` for a
-  wallpaper pack (`aequalyn-theme-lichen`, `aequalyn-plugin-dev-stats`). As with Omarchy's
-  themes, the repository names the item: GitHub gives a name out once per owner, and it
-  shows in every link;
+  wallpaper pack (`aequalyn-theme-lichen`, `aequalyn-plugin-dev-stats`). The repository
+  names the item: GitHub gives a name out once per owner, and it shows in every link;
 - is not one of Aequalyn's own (`tools/reserved.json`: the shell's plugins, the built-in
   themes, wallpapers, cursor and looks, refreshed from their repositories before every
   check), nor `aequalyn`, `official`, `builtin`, `default`, `system` or `core`;

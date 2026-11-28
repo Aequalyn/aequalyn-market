@@ -14,8 +14,8 @@ repository: nobody else's issue can take its id or update it.
 A new item's id is strict, so no two can be mistaken for each other: lowercase letters and
 digits with single dashes, up to 40; not one of Aequalyn's own (tools/reserved.json); not
 another repository's id give or take a dash, dot or underscore; and its repository is named
-after it, aequalyn-<kind>-<id> (aequalyn-wallpapers-<id> for a wallpaper pack), as Omarchy
-names a theme by its repository: a name GitHub gives out once per owner, shown in the URL.
+after it, aequalyn-<kind>-<id> (aequalyn-wallpapers-<id> for a wallpaper pack): a name
+GitHub gives out once per owner, shown in the URL.
 """
 import json, re, subprocess, sys, tempfile, os
 from pathlib import Path
